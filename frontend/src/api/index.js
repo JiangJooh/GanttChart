@@ -5,6 +5,14 @@ async function request(url, options = {}) {
     headers: { 'Content-Type': 'application/json' },
     ...options
   })
+  if (!resp.ok) {
+    let msg = `请求失败 (${resp.status})`
+    try {
+      const err = await resp.json()
+      msg = err.message || msg
+    } catch {}
+    throw new Error(msg)
+  }
   const data = await resp.json()
   if (data.code !== 200) {
     throw new Error(data.message || '请求失败')

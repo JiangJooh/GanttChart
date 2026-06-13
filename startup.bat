@@ -1,20 +1,51 @@
 @echo off
 chcp 65001 >nul
-title 排期助手 - 启动中...
+title GanttChart
+color 0A
 
-echo [排期助手] 正在启动后端服务...
-start "排期助手-后端" cmd /c "cd /d "%~dp0backend" && mvn spring-boot:run"
-
-echo 等待后端启动 (约30秒)...
-ping -n 31 127.0.0.1 >nul
-
-echo [排期助手] 正在启动前端服务...
-start "排期助手-前端" cmd /c "cd /d "%~dp0frontend" && npm run dev"
-
-echo [排期助手] 启动完成！
-echo   后端: http://localhost:8080
-echo   前端: http://localhost:5173
+echo ========================================
+echo   GanttChart Starting...
+echo ========================================
 echo.
-echo 关闭本窗口不会影响后端和前端运行。
-echo 如需关闭服务，请关闭对应的"排期助手-后端"和"排期助手-前端"命令行窗口。
-pause
+
+:: Step 1: Start MySQL
+echo [1/2] Checking MySQL...
+sc query MySQL80 | find "RUNNING" >nul
+if errorlevel 1 (
+    echo Starting MySQL...
+    net start MySQL80 >nul 2>&1
+    if errorlevel 1 (
+        echo [!!] MySQL failed to start, but continuing...
+    ) else (
+        echo [OK] MySQL started
+    )
+) else (
+    echo [OK] MySQL is running
+)
+
+:: Step 2: Start backend
+echo [2/2] Starting backend server...
+echo.
+
+set JAR=D:\Vibe-Coding\GanttChart\backend\target\gantt-chart-1.0.0.jar
+if not exist "%JAR%" (
+    echo [!!] JAR not found at %JAR%
+    echo      Build it: cd backend ^&^& mvn package -DskipTests
+    pause
+    exit /b 1
+)
+
+start "GanttChart-Backend" java -jar "%JAR%"
+
+echo URL: http://localhost:8080
+echo.
+echo Waiting for backend to start (15s)...
+ping -n 15 127.0.0.1 >nul
+
+start http://localhost:8080
+
+echo.
+echo Browser opened. If blank, refresh after a few seconds.
+echo You can close this window, service runs in background.
+echo To stop, close the "GanttChart-Backend" window.
+timeout /t 5 >nul

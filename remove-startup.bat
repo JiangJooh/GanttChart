@@ -1,17 +1,25 @@
 @echo off
 chcp 65001 >nul
-title 排期助手 - 取消自启
+title GanttChart - 取消开机自启
+color 0E
 
-echo [排期助手] 正在移除开机自启...
+echo ========================================
+echo    取消 GanttChart 开机自启
+echo ========================================
+echo.
 
-del /f "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\GanttChart.lnk" 2>nul
+:: 从 Windows 启动文件夹删除快捷方式
+set STARTUP_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+set SHORTCUT=%STARTUP_DIR%\GanttChart.lnk
 
-if exist "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\GanttChart.lnk" (
-    echo 取消失败，请手动删除：%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\GanttChart.lnk
+if exist "%SHORTCUT%" (
+    del "%SHORTCUT%"
+    echo [OK] 已移除开机自启项
 ) else (
-    echo [排期助手] 已取消开机自启！
+    echo [..] 未找到开机自启项 (可能已被移除)
 )
 
 echo.
-echo 如需重新启用，请双击项目目录下的 startup.bat
+echo 完成！下次开机将不再自动启动 GanttChart。
+echo.
 pause
