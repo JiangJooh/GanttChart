@@ -1,0 +1,44 @@
+# Java
+*.class
+*.jar
+*.war
+*.nar
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Eclipse
+.settings/
+.project
+.classpath
+*.classpath
+*.project
+bin/
+
+# Node
+node_modules/
+dist/
+
+# Vue
+frontend/dist/
+
+# Logs
+*.log
+spring.log
+
+# Env
+.env
+.env.local
+*.local
+
+# OS
+Thumbs.db
+.DS_Store
