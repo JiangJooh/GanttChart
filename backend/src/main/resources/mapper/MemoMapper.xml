@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ganttchart.mapper.MemoMapper">
+
+    <resultMap id="BaseResultMap" type="com.ganttchart.entity.Memo">
+        <id column="id" property="id"/>
+        <result column="memo_date" property="memoDate"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        SELECT id, memo_date, content, create_time, update_time
+        FROM memo
+        WHERE memo_date = #{memoDate}
+    </select>
+
+    <select id="selectAllOrderByDateDesc" resultMap="BaseResultMap">
+        SELECT id, memo_date, content, create_time, update_time
+        FROM memo
+        ORDER BY memo_date DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO memo (memo_date, content)
+        VALUES (#{memoDate}, #{content})
+    </insert>
+
+    <update id="updateById">
+        UPDATE memo
+        SET content = #{content}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

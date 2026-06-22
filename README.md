@@ -1,6 +1,6 @@
 # 排期助手 - 甘特图
 
-任务排期管理与甘特图可视化工具，支持任务的录入、编辑、删除，以及甘特图视图直观展示任务时间线。
+任务排期管理与甘特图可视化工具，支持任务的录入、编辑、删除，以及甘特图视图直观展示任务时间线。内置每日备忘录功能与链接收藏功能，支持记录每天工作事项、完成状态追踪与常用链接收藏管理。
 
 ---
 
@@ -33,7 +33,7 @@
 
 - **前端** (Vue 3 + Vite)：列表视图与甘特图视图切换，通过 Vite proxy 代理 API 请求到后端
 - **后端** (Spring Boot + MyBatis)：RESTful API，Caffeine 缓存节假日数据
-- **数据库** (MySQL 8.0)：任务表 + 节假日配置表
+- **数据库** (MySQL 8.0)：任务表 + 节假日配置表 + 备忘录表
 
 ---
 
@@ -64,6 +64,19 @@
 ### 视图切换
 - 右上角一键切换「列表视图 ⇄ 甘特图视图」
 - 在甘特图中编辑任务后，视图自动刷新
+
+### 每日备忘录
+- **📝 当日备忘** — 点击打开记事本弹窗，按日期独立存储
+- **事项管理** — 输入事项添加清单，复选框标记完成（自动加中划线）
+- **每日清空** — 每天默认空白，自动加载当日已有数据
+- **📋 查看备忘** — 按日期倒序展示所有历史备忘，展开查看详情
+- **数据持久化** — 所有备忘内容保存到数据库，支持长期追溯
+
+### 链接收藏
+- **🔗 链接收藏** — 在工具栏点击打开链接收藏弹窗
+- **链接管理** — 支持添加、编辑、删除常用链接
+- **优先级排序** — 按优先级数字升序排列，常用链接置顶
+- **一键打开** — 点击链接直接在新窗口打开，方便日常工作跳转
 
 ---
 
@@ -102,7 +115,7 @@ mysql -u root -p
 mysql> source D:/Vibe-Coding/GanttChart/sql/init.sql
 ```
 
-`init.sql` 会自动创建 `gantt_chart` 库、建表、导入 2026 年节假日数据和样例任务数据。
+`init.sql` 会自动创建 `gantt_chart` 库、建表（任务表、节假日表、备忘录表）、导入 2026 年节假日数据和样例任务数据。
 
 ### 2. 配置数据库连接
 
@@ -139,6 +152,16 @@ npm run dev
 前端启动在 `http://localhost:5173`，打开浏览器访问即可。
 
 > 前端 Vite 已配置 proxy，`/api` 请求自动代理到后端 `8080` 端口，无需额外配置跨域。
+
+### 5. 生产部署（合并 JAR）
+
+前端构建后由 Spring Boot 统一托管，生成独立可运行 JAR：
+
+```bash
+cd frontend && npm run build    # 构建前端，产物输出到 backend/src/main/resources/static/
+cd ../backend && mvn package    # 打包后端，生成 target/gantt-chart-1.0.0.jar
+java -jar target/gantt-chart-1.0.0.jar  # 单一 JAR 启动，访问 http://localhost:8080
+```
 
 ---
 
@@ -200,6 +223,28 @@ D:\Vibe-Coding\GanttChart\startup.bat
 sc config MySQL80 start= demand
 ```
 
+### Windows 服务部署（可选）
+
+后端可注册为 Windows 服务，实现开机自启与崩溃自动重启：
+
+```bash
+# 安装服务
+ganttchart-service.exe install
+
+# 卸载服务
+ganttchart-service.exe uninstall
+
+# 手动启动/停止
+net start GanttChart
+net stop GanttChart
+```
+
+**服务特性：**
+- 自动启动（延迟启动，等待 MySQL 就绪）
+- 崩溃后 10 秒自动重启
+- 日志自动轮转（保存到 `backend/logs/`）
+- 15 秒超时停止
+
 ---
 
 ## 项目结构
@@ -209,6 +254,8 @@ GanttChart/
 ├── PRD_甘特图功能.md          # 产品需求文档
 ├── startup.bat                # 一键启动脚本（已注册开机自启）
 ├── remove-startup.bat         # 取消开机自启脚本
+├── ganttchart-service.xml     # Windows 服务配置（Procrun）
+├── ganttchart-service.exe     # Windows 服务注册程序
 ├── sql/
 │   └── init.sql               # 数据库建表+初始化数据
 ├── backend/
@@ -218,32 +265,45 @@ GanttChart/
 │       │   ├── GanttChartApplication.java   # 启动入口
 │       │   ├── config/
 │       │   │   ├── CorsConfig.java          # 跨域配置
-│       │   │   └── CacheConfig.java         # Caffeine 缓存配置
+│       │   │   ├── CacheConfig.java         # Caffeine 缓存配置
+│       │   │   └── WebConfig.java           # 静态资源+SPA路由fallback
 │       │   ├── controller/
-│       │   │   ├── TaskController.java      # 任务 CRUD 接口
-│       │   │   └── GanttController.java     # 甘特图数据接口
+│       │   │   ├── MemoController.java        # 备忘录 CRUD 接口
+│       │   │   ├── TaskController.java         # 任务 CRUD 接口
+│       │   │   ├── GanttController.java        # 甘特图数据接口
+│       │   │   └── LinkController.java         # 链接收藏 CRUD 接口
 │       │   ├── entity/
-│       │   │   ├── Task.java                # 任务实体
-│       │   │   └── Holiday.java             # 节假日实体
+│       │   │   ├── Memo.java                   # 备忘录实体
+│       │   │   ├── Task.java                   # 任务实体
+│       │   │   ├── Holiday.java                # 节假日实体
+│       │   │   └── LinkItem.java               # 链接收藏实体
 │       │   ├── mapper/
+│       │   │   ├── MemoMapper.java
 │       │   │   ├── TaskMapper.java
-│       │   │   └── HolidayMapper.java
+│       │   │   ├── HolidayMapper.java
+│       │   │   └── LinkMapper.java
 │       │   ├── dto/
 │       │   │   ├── ApiResult.java           # 统一响应封装
 │       │   │   └── GanttDataVO.java         # 甘特图响应 VO
 │       │   └── service/
+│       │       ├── MemoService.java
 │       │       ├── TaskService.java
 │       │       ├── GanttService.java
 │       │       ├── HolidayService.java
+│       │       ├── LinkService.java
 │       │       └── impl/
+│       │           ├── MemoServiceImpl.java
 │       │           ├── TaskServiceImpl.java
 │       │           ├── GanttServiceImpl.java
-│       │           └── HolidayServiceImpl.java
+│       │           ├── HolidayServiceImpl.java
+│       │           └── LinkServiceImpl.java
 │       └── resources/
 │           ├── application.yml              # 应用配置
 │           └── mapper/
+│               ├── MemoMapper.xml
 │               ├── TaskMapper.xml
-│               └── HolidayMapper.xml
+│               ├── HolidayMapper.xml
+│               └── LinkMapper.xml
 └── frontend/
     ├── package.json
     ├── vite.config.js                       # 含 API 代理配置
@@ -254,10 +314,13 @@ GanttChart/
         ├── api/
         │   └── index.js                     # API 客户端
         └── components/
-            ├── Toolbar.vue                  # 工具栏（录入/导出/视图切换）
+            ├── Toolbar.vue                  # 工具栏（备忘/链接/录入/导出/视图切换）
             ├── TaskListView.vue             # 列表视图
             ├── GanttChart.vue               # 甘特图视图
-            └── TaskDialog.vue               # 任务编辑弹窗
+            ├── TaskDialog.vue               # 任务编辑弹窗
+            ├── MemoDialog.vue               # 当日备忘编辑弹窗
+            ├── MemoHistoryDialog.vue        # 备忘历史记录弹窗
+            └── LinkDialog.vue               # 链接收藏弹窗
 ```
 
 ---
@@ -282,6 +345,22 @@ GanttChart/
 | GET | `/api/gantt/tasks` | 获取甘特图数据（按项目分组 + 节假日列表），支持 `projectId` 参数 |
 
 **筛选逻辑**：仅返回 `plan_start_date` 和 `plan_end_date` 不为空，且 `actual_launch_date` 为 NULL 的任务。
+
+### 备忘录
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/memos/today?date=YYYY-MM-DD` | 获取指定日期的备忘内容 |
+| GET | `/api/memos/history` | 获取全部备忘历史（按日期倒序） |
+| POST | `/api/memos` | 保存备忘（有则更新，无则新增） |
+
+### 链接收藏
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/links` | 获取所有链接（按优先级排序） |
+| POST | `/api/links` | 保存链接（新增/更新） |
+| DELETE | `/api/links/{id}` | 删除链接 |
 
 ### 统一响应格式
 

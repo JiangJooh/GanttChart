@@ -85,6 +85,34 @@ INSERT INTO `holiday` (`holiday_date`, `holiday_name`, `holiday_type`, `year`) V
 ('2026-10-08', '国庆节', 1, 2026);
 
 -- =============================================
+-- 备忘录表
+-- =============================================
+DROP TABLE IF EXISTS `memo`;
+CREATE TABLE `memo` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `memo_date` date NOT NULL COMMENT '备忘日期',
+  `content` json NOT NULL COMMENT '备忘内容(JSON: [{text, done}])',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_memo_date` (`memo_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每日备忘录表';
+
+-- =============================================
+-- 链接收藏表
+-- =============================================
+DROP TABLE IF EXISTS `link_item`;
+CREATE TABLE `link_item` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `name` varchar(200) NOT NULL COMMENT '链接名称',
+  `url` varchar(1000) NOT NULL COMMENT '链接地址',
+  `priority` int NOT NULL DEFAULT 0 COMMENT '优先级排序(数字越小越靠前)',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_priority` (`priority`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='链接收藏表';
+
+-- =============================================
 -- 样例数据: 项目与任务
 -- =============================================
 

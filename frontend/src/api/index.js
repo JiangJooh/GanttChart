@@ -58,3 +58,37 @@ export const taskApi = {
     })
   }
 }
+
+export const linkApi = {
+  list() {
+    return request('/links')
+  },
+
+  save(link) {
+    return request('/links', {
+      method: 'POST',
+      body: JSON.stringify(link)
+    })
+  },
+
+  delete(id) {
+    return request(`/links/${id}`, { method: 'DELETE' })
+  }
+}
+
+export const memoApi = {
+  getToday(date) {
+    return request(`/memos/today?date=${date}`)
+  },
+
+  getHistory() {
+    return request('/memos/history')
+  },
+
+  save(memo) {
+    return request('/memos', {
+      method: 'POST',
+      body: JSON.stringify(memo)
+    })
+  }
+}

@@ -1,0 +1,16 @@
+<service>
+  <id>GanttChart</id>
+  <name>GanttChart Backend</name>
+  <description>GanttChart 排期助手 - 后端服务</description>
+  <env name="PATH" value="%PATH%"/>
+  <executable>java</executable>
+  <arguments>-jar "D:\Vibe-Coding\GanttChart\backend\target\gantt-chart-1.0.0.jar"</arguments>
+  <workingdirectory>D:\Vibe-Coding\GanttChart\backend</workingdirectory>
+  <logpath>D:\Vibe-Coding\GanttChart\backend\logs</logpath>
+  <logmode>rotate</logmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <stoptimeout>15 sec</stoptimeout>
+  <startmode>Automatic</startmode>
+  <delayedautoStart>true</delayedautoStart>
+</service>

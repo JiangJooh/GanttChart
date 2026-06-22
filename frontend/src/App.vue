@@ -4,6 +4,9 @@ import Toolbar from './components/Toolbar.vue'
 import TaskListView from './components/TaskListView.vue'
 import GanttChart from './components/GanttChart.vue'
 import TaskDialog from './components/TaskDialog.vue'
+import MemoDialog from './components/MemoDialog.vue'
+import MemoHistoryDialog from './components/MemoHistoryDialog.vue'
+import LinkDialog from './components/LinkDialog.vue'
 import { taskApi } from './api/index.js'
 
 const isGanttView = ref(false)
@@ -12,6 +15,9 @@ const loading = ref(false)
 const dialogVisible = ref(false)
 const editingTask = ref(null)
 const ganttKey = ref(0)
+const memoDialogVisible = ref(false)
+const memoHistoryVisible = ref(false)
+const linkDialogVisible = ref(false)
 
 function loadTasks() {
   loading.value = true
@@ -65,6 +71,18 @@ function handleSetLaunch(id, date) {
     .catch(err => alert('设置上线时间失败: ' + err.message))
 }
 
+function openMemo() {
+  memoDialogVisible.value = true
+}
+
+function openMemoHistory() {
+  memoHistoryVisible.value = true
+}
+
+function openLinks() {
+  linkDialogVisible.value = true
+}
+
 onMounted(loadTasks)
 </script>
 
@@ -75,6 +93,9 @@ onMounted(loadTasks)
       @toggleView="toggleView"
       @create="openCreate"
       @export="handleExport"
+      @openMemo="openMemo"
+      @openMemoHistory="openMemoHistory"
+      @openLinks="openLinks"
     />
     <div class="view-container">
       <TaskListView
@@ -98,6 +119,18 @@ onMounted(loadTasks)
       :task="editingTask"
       @save="handleSave"
       @close="dialogVisible = false"
+    />
+    <MemoDialog
+      v-if="memoDialogVisible"
+      @close="memoDialogVisible = false"
+    />
+    <MemoHistoryDialog
+      v-if="memoHistoryVisible"
+      @close="memoHistoryVisible = false"
+    />
+    <LinkDialog
+      v-if="linkDialogVisible"
+      @close="linkDialogVisible = false"
     />
   </div>
 </template>

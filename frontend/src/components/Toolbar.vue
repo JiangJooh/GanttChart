@@ -1,6 +1,6 @@
 <script setup>
 defineProps({ isGanttView: Boolean })
-const emit = defineEmits(['toggleView', 'create'])
+const emit = defineEmits(['toggleView', 'create', 'openMemo', 'openMemoHistory', 'openLinks'])
 </script>
 
 <template>
@@ -9,6 +9,15 @@ const emit = defineEmits(['toggleView', 'create'])
       <h2 class="toolbar-title">排期助手</h2>
     </div>
     <div class="toolbar-right">
+      <button class="btn btn-link" @click="emit('openLinks')">
+        🔗 链接收藏
+      </button>
+      <button class="btn btn-memo" @click="emit('openMemo')">
+        📝 当日备忘
+      </button>
+      <button class="btn btn-memo-history" @click="emit('openMemoHistory')">
+        📋 查看备忘
+      </button>
       <button class="btn btn-primary" @click="emit('create')">
         + 录入
       </button>
@@ -77,5 +86,35 @@ const emit = defineEmits(['toggleView', 'create'])
 .btn-accent:hover {
   border-color: #722ed1;
   background: #f9f0ff;
+}
+.btn-memo {
+  background: #fff;
+  color: #52c41a;
+  border: 1px solid #52c41a;
+}
+.btn-memo:hover {
+  background: #f6ffed;
+  border-color: #73d13d;
+  color: #73d13d;
+}
+.btn-memo-history {
+  background: #fff;
+  color: #fa8c16;
+  border: 1px solid #fa8c16;
+}
+.btn-memo-history:hover {
+  background: #fff7e6;
+  border-color: #ffa940;
+  color: #ffa940;
+}
+.btn-link {
+  background: #fff;
+  color: #eb2f96;
+  border: 1px solid #eb2f96;
+}
+.btn-link:hover {
+  background: #fff0f6;
+  border-color: #f759ab;
+  color: #f759ab;
 }
 </style>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ganttchart.mapper.LinkMapper">
+
+    <resultMap id="BaseResultMap" type="com.ganttchart.entity.LinkItem">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="priority" property="priority" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selectAllOrderByPriority" resultMap="BaseResultMap">
+        SELECT id, name, url, priority, create_time
+        FROM link_item
+        ORDER BY priority ASC, id DESC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT id, name, url, priority, create_time
+        FROM link_item
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO link_item (name, url, priority)
+        VALUES (#{name}, #{url}, #{priority})
+    </insert>
+
+    <update id="updateById">
+        UPDATE link_item
+        SET name = #{name}, url = #{url}, priority = #{priority}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM link_item WHERE id = #{id}
+    </delete>
+
+</mapper>
