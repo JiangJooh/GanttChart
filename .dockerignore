@@ -1,0 +1,8 @@
+node_modules/
+frontend/dist/
+backend/target/
+*.exe
+*.bat
+.git/
+.gitignore
+*.md
